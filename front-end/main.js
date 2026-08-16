@@ -3,7 +3,7 @@ const API_URL = 'http://localhost:8080/api/transacoes';
 // Verifica se há usuário logado, se não houver, redireciona para o login
 const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
 if (!usuarioLogado) {
-    window.location.href = '/front-end/login.html';
+  window.location.href = '/front-end/login.html';
 }
 
 const form = document.getElementById('form-transacao');
@@ -29,106 +29,113 @@ dataInput.value = hoje.toISOString().split('T')[0];
 filtroMesInput.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
 
 function formatarMoeda(valor) {
-    return valor.toLocaleString('pt-BR', {style: 'currency', currency:'BRL' });
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
 // 1. READ: Buscar transações do Backend (API Spring Boot)
 async function carregarTransacoes() {
-    try {
-        const resposta = await fetch(API_URL);
-        if (!resposta.ok) throw new Error('Erro ao buscar dados do servidor');
-        transacoes = await resposta.json();
-        renderizarTransacoes();
-    } catch (erro) {
-        console.error('Erro na API', erro);
-    }
+  try {
+    const resposta = await fetch(API_URL);
+    if (!resposta.ok) throw new Error('Erro ao buscar dados do servidor');
+    transacoes = await resposta.json();
+    renderizarTransacoes();
+  } catch (erro) {
+    console.error('Erro na API', erro);
+  }
 }
 
 function obterTransacoesFiltradas() {
-    const mesSelecionado = filtroMesInput.value; // Formato YYYY-MM
-    if (!mesSelecionado) return transacoes;
+  const mesSelecionado = filtroMesInput.value; // Formato YYYY-MM
+  if (!mesSelecionado) return transacoes;
 
-    return transacoes.filter(t => t.data && t.data.startsWith(mesSelecionado));
+  return transacoes.filter((t) => t.data && t.data.startsWith(mesSelecionado));
 }
 
 function atualizarResumo(filtradas) {
-    const entradas = filtradas
-        .filter(t => t.tipo === 'entrada')
-        .reduce((acc, t) => acc + Number(t.valor), 0);
+  const entradas = filtradas
+    .filter((t) => t.tipo === 'entrada')
+    .reduce((acc, t) => acc + Number(t.valor), 0);
 
-    const saidas = filtradas
-        .filter(t => t.tipo === 'saida')
-        .reduce((acc, t) => acc + Number(t.valor), 0);
+  const saidas = filtradas
+    .filter((t) => t.tipo === 'saida')
+    .reduce((acc, t) => acc + Number(t.valor), 0);
 
-    const saldo = entradas - saidas;
+  const saldo = entradas - saidas;
 
-    totalEntradasEl.textContent = formatarMoeda(entradas);
-    totalSaidasEl.textContent = formatarMoeda(saidas);
-    saldoTotalEl.textContent = formatarMoeda(saldo);
+  totalEntradasEl.textContent = formatarMoeda(entradas);
+  totalSaidasEl.textContent = formatarMoeda(saidas);
+  saldoTotalEl.textContent = formatarMoeda(saldo);
 }
 
 function renderizargrafico(filtradas) {
-    const canvas = document.getElementById('grafico-categorias');
-    if (!canvas) return;
+  const canvas = document.getElementById('grafico-categorias');
+  if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d');
 
-    // Filtra apenas saídas para o gráfico de categorias
-    const saidas = filtradas.filter(t => t.tipo === 'saida');
+  // Filtra apenas saídas para o gráfico de categorias
+  const saidas = filtradas.filter((t) => t.tipo === 'saida');
 
-    const categoriasValores = {};
-    saidas.forEach(t => {
-        const cat = t.categoria || 'Outros';
-        categoriasValores[cat] = (categoriasValores[cat] || 0) + Number(t.valor);
-    });
+  const categoriasValores = {};
+  saidas.forEach((t) => {
+    const cat = t.categoria || 'Outros';
+    categoriasValores[cat] = (categoriasValores[cat] || 0) + Number(t.valor);
+  });
 
-    const labels = Object.keys(categoriasValores);
-    const data = Object.values(categoriasValores);
+  const labels = Object.keys(categoriasValores);
+  const data = Object.values(categoriasValores);
 
-    if (meuGrafico) {
-        meuGrafico.destroy();
-    }
+  if (meuGrafico) {
+    meuGrafico.destroy();
+  }
 
-    // Caso não haja saídas registradas no mês
-    if (data.length === 0) return;
+  // Caso não haja saídas registradas no mês
+  if (data.length === 0) return;
 
-    const isDarkMode = document.body.classList.contains('dark-mode');
+  const isDarkMode = document.body.classList.contains('dark-mode');
 
-    meuGrafico = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: labels,
-            datasets:[{
-                data: data,
-                backgroundColor: [
-                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                    '#9966FF', '#ff9F40', '#C9CBCF' // Corrigido (removido o 'E' extra)
-                ]
-            }]
+  meuGrafico = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          data: data,
+          backgroundColor: [
+            '#FF6384',
+            '#36A2EB',
+            '#FFCE56',
+            '#4BC0C0',
+            '#9966FF',
+            '#ff9F40',
+            '#C9CBCF', // Corrigido (removido o 'E' extra)
+          ],
         },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { color: isDarkMode ? '#ffffff' : '#333333' } // Cor do texto no Dark Mode
-                }
-            }
-        }
-    });
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: isDarkMode ? '#ffffff' : '#333333' }, // Cor do texto no Dark Mode
+        },
+      },
+    },
+  });
 }
 
 function renderizarTransacoes() {
-    const filtradas = obterTransacoesFiltradas();
-    listaTransacoes.innerHTML = '';
+  const filtradas = obterTransacoesFiltradas();
+  listaTransacoes.innerHTML = '';
 
-    filtradas.forEach((transacao) => {
-        const li = document.createElement('li');
-        li.classList.add(transacao.tipo);
+  filtradas.forEach((transacao) => {
+    const li = document.createElement('li');
+    li.classList.add(transacao.tipo);
 
-        const sinal = transacao.tipo === 'entrada' ? '+' : '-';
+    const sinal = transacao.tipo === 'entrada' ? '+' : '-';
 
-        li.innerHTML = `
+    li.innerHTML = `
             <div class="item-info">
                 <strong>${transacao.descricao}</strong>
                 <span class="item-categoria">${transacao.categoria} | ${transacao.data}</span>
@@ -139,86 +146,92 @@ function renderizarTransacoes() {
             </div>
         `;
 
-        listaTransacoes.appendChild(li);
-    });
+    listaTransacoes.appendChild(li);
+  });
 
-    atualizarResumo(filtradas);
-    renderizargrafico(filtradas);
+  atualizarResumo(filtradas);
+  renderizargrafico(filtradas);
 }
 
 // 2. CREATE: Salvar transação no Backend (POST)
 async function adicionarTransacao(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const novaTransacao = {
-        descricao: descricaoInput.value.trim(),
-        valor: parseFloat(valorInput.value),
-        data: dataInput.value,
-        tipo: tipoSelect.value,
-        categoria: categoriaSelect.value,
-        usuario: { id: usuarioLogado.id} // Vincula ao ID do usuário logado
-    };
+  const novaTransacao = {
+    descricao: descricaoInput.value.trim(),
+    valor: parseFloat(valorInput.value),
+    data: dataInput.value,
+    tipo: tipoSelect.value,
+    categoria: categoriaSelect.value,
+    usuario: { id: usuarioLogado.id }, // Vincula ao ID do usuário logado
+  };
 
-    if (!novaTransacao.descricao || isNaN(novaTransacao.valor) || novaTransacao.valor <= 0 || !novaTransacao.data) return;
+  if (
+    !novaTransacao.descricao ||
+    isNaN(novaTransacao.valor) ||
+    novaTransacao.valor <= 0 ||
+    !novaTransacao.data
+  )
+    return;
 
-    try {
-        const resposta = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(novaTransacao)
-        });
+  try {
+    const resposta = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(novaTransacao),
+    });
 
-        if (resposta.ok) {
-            descricaoInput.value = '';
-            valorInput.value = '';
-            descricaoInput.focus();
-            carregarTransacoes(); // Recarrega os dados do banco
-        }
-    } catch (erro) {
-        console.error('Erro ao salvar transação:', erro);
+    if (resposta.ok) {
+      descricaoInput.value = '';
+      valorInput.value = '';
+      descricaoInput.focus();
+      carregarTransacoes(); // Recarrega os dados do banco
     }
+  } catch (erro) {
+    console.error('Erro ao salvar transação:', erro);
+  }
 }
 
 // 3. DELETE: Remover transação no Backend (DELETE)
 async function removertransacao(id) {
-    try {
-        const resposta = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        if (resposta.ok) {
-            carregarTransacoes(); // Recarrega os dados do banco
-        }
-    } catch (erro) {
-        console.error('Erro ao deletar transação:', erro);
+  try {
+    const resposta = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    if (resposta.ok) {
+      carregarTransacoes(); // Recarrega os dados do banco
     }
+  } catch (erro) {
+    console.error('Erro ao deletar transação:', erro);
+  }
 }
 
 // Event listeners
 listaTransacoes.addEventListener('click', (e) => {
-    if (e.target.classList.contains('btn-deletar')) {
-        const id = e.target.getAttribute('data-id');
-        removertransacao(id);
-    }
+  if (e.target.classList.contains('btn-deletar')) {
+    const id = e.target.getAttribute('data-id');
+    removertransacao(id);
+  }
 });
 
 filtroMesInput.addEventListener('change', renderizarTransacoes);
 
 // Modo Escuro
 function aplicarTema(dark) {
-    if (dark) {
-        document.body.classList.add('dark-mode');
-        btnTema.textContent = '☀️ Modo Claro';
-    } else {
-        document.body.classList.remove('dark-mode');
-        btnTema.textContent = '🌙 Modo Escuro'
-    }
+  if (dark) {
+    document.body.classList.add('dark-mode');
+    btnTema.textContent = '☀️ Modo Claro';
+  } else {
+    document.body.classList.remove('dark-mode');
+    btnTema.textContent = '🌙 Modo Escuro';
+  }
 }
 
 const modoEscuroSalvo = JSON.parse(localStorage.getItem('modoEscuro')) || false;
 aplicarTema(modoEscuroSalvo);
 
 btnTema.addEventListener('click', () => {
-    const isDark = document.body.classList.toggle('dark-mode');
-    localStorage.setItem('modoEscuro', JSON.stringify(isDark));
-    btnTema.textContent = isDark ? '☀️ Modo Claro' : '🌙 Modo Escuro';
+  const isDark = document.body.classList.toggle('dark-mode');
+  localStorage.setItem('modoEscuro', JSON.stringify(isDark));
+  btnTema.textContent = isDark ? '☀️ Modo Claro' : '🌙 Modo Escuro';
 });
 
 form.addEventListener('submit', adicionarTransacao);

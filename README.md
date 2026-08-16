@@ -19,11 +19,13 @@ Aplicação Full Stack para controle de finanças pessoais, permitindo o gerenci
 ## 🛠️ Tecnologias Utilizadas
 
 ### **Front-end**
+
 - **HTML5** & **CSS3** (Flexbox/Grid, variáveis CSS, suporte a temas)
 - **JavaScript (ES6+)**
 - **Chart.js** (Renderização de gráficos)
 
 ### **Back-end**
+
 - **Java 17/21**
 - **Spring Boot 3.x**
   - Spring Data JPA
@@ -31,6 +33,7 @@ Aplicação Full Stack para controle de finanças pessoais, permitindo o gerenci
 - **Lombok**
 
 ### **Banco de Dados**
+
 - **MySQL 8.0**
 - **Hibernate / JPA** (Mapeamento O/R)
 
@@ -62,6 +65,7 @@ financias/
 ## 🚀 Como Executar o Projeto
 
 ### **Pré-requisitos**
+
 - **JDK 17** ou superior instalado
 - **MySQL Server** e **MySQL Workbench** em execução
 - **Maven** (ou wrapper do projeto)
@@ -102,7 +106,7 @@ spring.datasource.password=sua_senha
 ./mvnw spring-boot:run
 ```
 
-> *(A API estará rodando em `http://localhost:8080`)*
+> _(A API estará rodando em `http://localhost:8080`)_
 
 ---
 
@@ -117,10 +121,12 @@ spring.datasource.password=sua_senha
 ## 📡 Endpoints da API
 
 ### **Usuários (`/api/usuarios`)**
+
 - `POST /api/usuarios/cadastrar` — Cadastra um novo usuário.
 - `POST /api/usuarios/login` — Autentica o usuário.
 
 ### **Transações (`/api/transacoes`)**
+
 - `GET /api/transacoes` — Lista todas as transações.
 - `POST /api/transacoes` — Cria uma nova transação.
 - `DELETE /api/transacoes/{id}` — Remove uma transação pelo ID.

@@ -1,79 +1,93 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Planilha Financeira</title>
-    <link rel="stylesheet" href="/front-end/style.css">
+    <link rel="stylesheet" href="/front-end/style.css" />
     <!-- Chart.js CDN -->
-     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>Controle Financeiro</h1>
-            <button id="btn-tema" class="btn-tema" type="button">🌙 Modo Escuro</button>
+      <div class="header">
+        <h1>Controle Financeiro</h1>
+        <button id="btn-tema" class="btn-tema" type="button">
+          🌙 Modo Escuro
+        </button>
+      </div>
+
+      <!-- Filtro por Mês/Ano -->
+      <div class="filtro-container">
+        <label for="filtro-mes">Filtrar por Mês:</label>
+        <input type="month" id="filtro-mes" />
+      </div>
+
+      <!-- Resumo do Mês -->
+      <div class="resumo">
+        <div class="card entrada">
+          <h3>Entradas</h3>
+          <p id="total-entradas">R$ 0,00</p>
+        </div>
+        <div class="card saida">
+          <h3>Saídas</h3>
+          <p id="total-saidas">R$ 0,00</p>
+        </div>
+        <div class="card saldo">
+          <h3>Saldo Total</h3>
+          <p id="saldo-total">R$ 0,00</p>
+        </div>
+      </div>
+
+      <!-- Formulário de Cadastro -->
+      <form id="form-transacao">
+        <input
+          type="text"
+          id="descricao"
+          placeholder="Descrição (ex: Mercado,Salário)"
+          required
+        />
+        <input
+          type="number"
+          id="valor"
+          placeholder="Valor (R$)"
+          step="0.01"
+          min="0.01"
+          required
+        />
+        <input type="date" id="data" required />
+
+        <div class="form-row">
+          <select id="tipo" required>
+            <option value="saida">Saída</option>
+            <option value="entrada">Entrada</option>
+          </select>
+
+          <select id="categoria" required>
+            <option value="Alimentação">Alimentação</option>
+            <option value="Moradia">Moradia</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Lazer">Lazer</option>
+            <option value="Saúde">Saúde</option>
+            <option value="Salário">Salário</option>
+            <option value="Outros">Outros</option>
+          </select>
         </div>
 
-        <!-- Filtro por Mês/Ano -->
-        <div class="filtro-container">
-            <label for="filtro-mes">Filtrar por Mês:</label>
-            <input type="month" id="filtro-mes">
-        </div>
-        
-        <!-- Resumo do Mês -->
-        <div class="resumo">
-            <div class="card entrada">
-                <h3>Entradas</h3>
-                <p id="total-entradas">R$ 0,00</p>
-            </div>
-            <div class="card saida">
-                <h3>Saídas</h3>
-                <p id="total-saidas">R$ 0,00</p>
-            </div>
-            <div class="card saldo">
-                <h3>Saldo Total</h3>
-                <p id="saldo-total">R$ 0,00</p>
-            </div>
-        </div>
+        <button type="submit">Adicionar</button>
+      </form>
 
-        <!-- Formulário de Cadastro -->
-        <form id="form-transacao">
-            <input type="text" id="descricao" placeholder="Descrição (ex: Mercado,Salário)" required>
-            <input type="number" id="valor" placeholder="Valor (R$)" step="0.01" min="0.01" required>
-            <input type="date" id="data" required>
-            
-            <div class="form-row">
-                <select id="tipo" required>
-                    <option value="saida">Saída</option>
-                    <option value="entrada">Entrada</option>
-                </select>
+      <!-- Seção do gráfico -->
+      <div class="grafico-container">
+        <h2>Gastos por Categoria</h2>
+        <canvas id="grafico-categorias"></canvas>
+      </div>
 
-                <select id="categoria" required>
-                    <option value="Alimentação">Alimentação</option>
-                    <option value="Moradia">Moradia</option>
-                    <option value="Transporte">Transporte</option>
-                    <option value="Lazer">Lazer</option>
-                    <option value="Saúde">Saúde</option>
-                    <option value="Salário">Salário</option>
-                    <option value="Outros">Outros</option>
-                </select>
-            </div>
-
-            <button type="submit">Adicionar</button>
-        </form>
-
-        <!-- Seção do gráfico --> 
-        <div class="grafico-container">
-            <h2>Gastos por Categoria</h2>
-            <canvas id="grafico-categorias"></canvas>
-        </div>
-
-        <!-- Lista de Transações -->
-        <h2>Histórico do Mês</h2>
-        <ul id="lista-transacoes"></ul>
+      <!-- Lista de Transações -->
+      <h2>Histórico do Mês</h2>
+      <ul id="lista-transacoes"></ul>
     </div>
 
     <script src="/front-end/main.js"></script>
-</body>
+  </body>
 </html>

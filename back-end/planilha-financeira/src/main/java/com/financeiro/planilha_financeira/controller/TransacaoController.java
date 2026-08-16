@@ -11,7 +11,7 @@ import java.util.List;
 @RequestMapping("/api/transacoes")
 @CrossOrigin(origins = "*") // Permite chamadas do frontend no navegador
 public class TransacaoController {
-    
+
     @Autowired
     private TransacaoRepository repository;
 
