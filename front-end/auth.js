@@ -68,7 +68,7 @@ formAuth.addEventListener('submit', async (e) => {
     localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
 
     // Redireciona para a página principal da planilha
-    window.location.href = '/front-end/index.html';
+    window.location.href = './index.html';
   } catch (erro) {
     msgErro.textContent = erro.message;
   }

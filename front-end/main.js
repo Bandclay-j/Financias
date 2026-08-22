@@ -1,10 +1,11 @@
-const API_URL = 'http://localhost:8080/api/transacoes';
-
 // Verifica se há usuário logado, se não houver, redireciona para o login
 const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+
 if (!usuarioLogado) {
-  window.location.href = '/front-end/login.html';
+  window.location.href = './login.html';
 }
+
+const API_URL = 'http://localhost:8080/api/transacoes';
 
 const form = document.getElementById('form-transacao');
 const descricaoInput = document.getElementById('descricao');
@@ -34,8 +35,9 @@ function formatarMoeda(valor) {
 
 // 1. READ: Buscar transações do Backend (API Spring Boot)
 async function carregarTransacoes() {
+  if (!usuarioLogado) return;
   try {
-    const resposta = await fetch(API_URL);
+    const resposta = await fetch(`${API_URL}/usuario/${usuarioLogado.id}`);
     if (!resposta.ok) throw new Error('Erro ao buscar dados do servidor');
     transacoes = await resposta.json();
     renderizarTransacoes();
@@ -236,5 +238,7 @@ btnTema.addEventListener('click', () => {
 
 form.addEventListener('submit', adicionarTransacao);
 
-// Inicialização: Busca os dados da API Spring Boot ao carregar a página
-renderizarTransacoes();
+// Inicialização segura
+if (usuarioLogado) {
+  carregarTransacoes();
+}
