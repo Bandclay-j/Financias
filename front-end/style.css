@@ -65,15 +65,15 @@ body {
 .btn-logout {
   padding: 8px 12px;
   font-size: 14px;
-  border: 1px solid #c62828;
+  border: 1px solid #e57373;
   border-radius: 20px;
-  background: #e57373;
+  background: #c62828;
   color: white;
   cursor: pointer;
 }
 
 .btn-logout:hover {
-  background: #c62828;
+  background: #e57373;
 }
 
 .resumo {
@@ -200,7 +200,7 @@ body.dark-mode {
   color: #e0e0e0;
 }
 
-body.dark-mode .container
+body.dark-mode .container,
 body.dark-mode .container-auth {
   background-color: #1e1e1e;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
