@@ -16,7 +16,8 @@ body {
   justify-content: center;
 }
 
-.container {
+.container,
+.container-auth {
   width: 100%;
   max-width: 600px;
   background: white;
@@ -30,6 +31,11 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
+}
+
+.header-acoes {
+  display: flex;
+  gap: 8px;
 }
 
 .filtro-container {
@@ -54,6 +60,20 @@ body {
 
 .btn-tema:hover {
   background: #ddd;
+}
+
+.btn-logout {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #c62828;
+  border-radius: 20px;
+  background: #e57373;
+  color: white;
+  cursor: pointer;
+}
+
+.btn-logout:hover {
+  background: #c62828;
 }
 
 .resumo {
@@ -174,13 +194,14 @@ button[type='submit']:hover {
   color: #c0392b;
 }
 
-/* ================= MODOS ESCURO ================= */
+/* Modo Escuro */
 body.dark-mode {
   background-color: #121212;
   color: #e0e0e0;
 }
 
-body.dark-mode .container {
+body.dark-mode .container
+body.dark-mode .container-auth {
   background-color: #1e1e1e;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
 }

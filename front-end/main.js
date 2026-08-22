@@ -1,4 +1,4 @@
-// Verifica se há usuário logado, se não houver, redireciona para o login
+// 1. Trava de Segurança: redireciona imediatamente se não houver sessão ativa
 const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
 
 if (!usuarioLogado) {
@@ -20,6 +20,7 @@ const totalEntradasEl = document.getElementById('total-entradas');
 const totalSaidasEl = document.getElementById('total-saidas');
 const saldoTotalEl = document.getElementById('saldo-total');
 const btnTema = document.getElementById('btn-tema');
+const btnLogout = document.getElementById('btn-logout');
 
 let meuGrafico = null;
 let transacoes = [];
@@ -33,7 +34,7 @@ function formatarMoeda(valor) {
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-// 1. READ: Buscar transações do Backend (API Spring Boot)
+// 2. READ: Buscar transações vinculadas exclusivamente ao ID do Usuário logado
 async function carregarTransacoes() {
   if (!usuarioLogado) return;
   try {
@@ -47,7 +48,7 @@ async function carregarTransacoes() {
 }
 
 function obterTransacoesFiltradas() {
-  const mesSelecionado = filtroMesInput.value; // Formato YYYY-MM
+  const mesSelecionado = filtroMesInput.value;
   if (!mesSelecionado) return transacoes;
 
   return transacoes.filter((t) => t.data && t.data.startsWith(mesSelecionado));
@@ -110,7 +111,7 @@ function renderizargrafico(filtradas) {
             '#4BC0C0',
             '#9966FF',
             '#ff9F40',
-            '#C9CBCF', // Corrigido (removido o 'E' extra)
+            '#C9CBCF',
           ],
         },
       ],
@@ -120,7 +121,7 @@ function renderizargrafico(filtradas) {
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { color: isDarkMode ? '#ffffff' : '#333333' }, // Cor do texto no Dark Mode
+          labels: { color: isDarkMode ? '#ffffff' : '#333333' },
         },
       },
     },
@@ -155,7 +156,7 @@ function renderizarTransacoes() {
   renderizargrafico(filtradas);
 }
 
-// 2. CREATE: Salvar transação no Backend (POST)
+// 3. CREATE:Salvar nova transição atrelada ao usuário
 async function adicionarTransacao(e) {
   e.preventDefault();
 
@@ -165,7 +166,7 @@ async function adicionarTransacao(e) {
     data: dataInput.value,
     tipo: tipoSelect.value,
     categoria: categoriaSelect.value,
-    usuario: { id: usuarioLogado.id }, // Vincula ao ID do usuário logado
+    usuario: { id: usuarioLogado.id },
   };
 
   if (
@@ -187,14 +188,14 @@ async function adicionarTransacao(e) {
       descricaoInput.value = '';
       valorInput.value = '';
       descricaoInput.focus();
-      carregarTransacoes(); // Recarrega os dados do banco
+      carregarTransacoes();
     }
   } catch (erro) {
     console.error('Erro ao salvar transação:', erro);
   }
 }
 
-// 3. DELETE: Remover transação no Backend (DELETE)
+// 4. DELETE: Remover transação
 async function removertransacao(id) {
   try {
     const resposta = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
@@ -216,7 +217,7 @@ listaTransacoes.addEventListener('click', (e) => {
 
 filtroMesInput.addEventListener('change', renderizarTransacoes);
 
-// Modo Escuro
+// Controle do Tema Escuro
 function aplicarTema(dark) {
   if (dark) {
     document.body.classList.add('dark-mode');
@@ -236,9 +237,15 @@ btnTema.addEventListener('click', () => {
   btnTema.textContent = isDark ? '☀️ Modo Claro' : '🌙 Modo Escuro';
 });
 
+// Ação do Botão de Logout
+btnLogout.addEventListener('click', () => {
+  localStorage.removeItem('usuarioLogado');
+  window.location.href = './login.html';
+});
+
 form.addEventListener('submit', adicionarTransacao);
 
-// Inicialização segura
+// Inicialização das transações se o usuário estiver autenticado
 if (usuarioLogado) {
   carregarTransacoes();
 }

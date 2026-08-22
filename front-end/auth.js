@@ -63,11 +63,9 @@ formAuth.addEventListener('submit', async (e) => {
     }
 
     const usuario = await resposta.json();
-
-    // Salva o usuário logado na sessão do navegador
     localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
 
-    // Redireciona para a página principal da planilha
+    // Redirecionamento com caminho relativo
     window.location.href = './index.html';
   } catch (erro) {
     msgErro.textContent = erro.message;
