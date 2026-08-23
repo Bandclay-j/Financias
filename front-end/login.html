@@ -3,34 +3,63 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - gerenciador Financeiro</title>
-    <link rel="stylesheet" href="./style.css" />
+    <title>Login - Gerenciador financeiro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./login.css" />
   </head>
-  <body>
-    <div class="container-auth">
-      <h2 id="titulo-form">Entrar no Sistema</h2>
+  <body class="page-auth">
+    <div class="auth-wrapper">
+      <div class="auth-header">
+        <div class="brand-logo">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+        <h2 id="titulo-form">Entrar no Sistema</h2>
+        <p class="auth-subtitle">gerencie suas finanças com praticidade</p>
+      </div>
 
       <form id="form-auth">
-        <div id="campo-nome" style="display: none">
-          <label for="nome">Nome:</label>
-          <input type="text" id="nome" placeholder="Seu nome completo" />
+        <div id="campo-nome" class="form-group" style="display: none">
+          <label for="nome">NOME COMPLETO</label>
+          <input type="text" id="nome" placeholder="Ex: João Silva" />
         </div>
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" required placeholder="seu@email.com" />
+        <div class="form-group">
+          <label for="email">E-MAIL</label>
+          <input type="email" id="email" required placeholder="seu@gmail.com" />
+        </div>
 
-        <label for="senha">Senha:</label>
-        <input type="password" id="senha" required placeholder="******" />
+        <div class="form-group">
+          <label for="senha">SENHA</label>
+          <input type="password" id="senha" required placeholder="••••••••" />
+        </div>
 
-        <button type="submit" id="btn-submit">Entrar</button>
+        <button type="submit" id="btn-submit" class="btn-primary">
+          Entrar
+        </button>
       </form>
 
-      <p id="msg-erro" style="color: red; margin-top: 10px"></p>
+      <div id="msg-erro" class="msg-erro"></div>
 
-      <p style="margin-top: 15px">
+      <div class="auth-footer">
         <span id="texto-alternar">Não tem uma conta?</span>
         <a href="#" id="link-alternar">Cadastre-se</a>
-      </p>
+      </div>
     </div>
 
     <script src="./auth.js"></script>

@@ -15,12 +15,18 @@ const tipoSelect = document.getElementById('tipo');
 const categoriaSelect = document.getElementById('categoria');
 const filtroMesInput = document.getElementById('filtro-mes');
 const listaTransacoes = document.getElementById('lista-transacoes');
+const loadingEl = document.getElementById('loading');
 
 const totalEntradasEl = document.getElementById('total-entradas');
 const totalSaidasEl = document.getElementById('total-saidas');
 const saldoTotalEl = document.getElementById('saldo-total');
-const btnTema = document.getElementById('btn-tema');
 const btnLogout = document.getElementById('btn-logout');
+
+// Elementos do Modal
+const modalConfirm = document.getElementById('modal-confirm');
+const btnCancelarModal = document.getElementById('btn-cancelar-modal');
+const btnConfirmarModal = document.getElementById('btn-confirmar-modal');
+let idParaDeletar = null;
 
 let meuGrafico = null;
 let transacoes = [];
@@ -29,6 +35,35 @@ let transacoes = [];
 const hoje = new Date();
 dataInput.value = hoje.toISOString().split('T')[0];
 filtroMesInput.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+
+// Toast Helper
+function mostrarToast(mensagem, tipo = 'sucesso') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${tipo}`;
+  toast.textContent = mensagem;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
+
+// Máscara de Moeda no Input
+valorInput.addEventListener('input', (e) => {
+  let value = e.target.value.replace(/\D/g, '');
+  if (!value) {
+    e.target.value = '';
+    return;
+  }
+  value = (parseFloat(value) / 100).toFixed(2);
+  e.target.value = 'R$ ' + value.replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+});
+
+function converterValorParaNumero(str) {
+  if (!str) return 0;
+  return parseFloat(str.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
+}
 
 function formatarMoeda(valor) {
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -43,7 +78,9 @@ async function carregarTransacoes() {
     transacoes = await resposta.json();
     renderizarTransacoes();
   } catch (erro) {
-    console.error('Erro na API', erro);
+      mostrarToast('Falha ao carregar transações', 'erro');
+  } finally {
+    loadingEl.style.display = 'none';
   }
 }
 
@@ -95,24 +132,24 @@ function renderizargrafico(filtradas) {
   // Caso não haja saídas registradas no mês
   if (data.length === 0) return;
 
-  const isDarkMode = document.body.classList.contains('dark-mode');
-
   meuGrafico = new Chart(ctx, {
-    type: 'pie',
+    type: 'doughnut',
     data: {
       labels: labels,
       datasets: [
         {
           data: data,
           backgroundColor: [
-            '#FF6384',
-            '#36A2EB',
-            '#FFCE56',
-            '#4BC0C0',
-            '#9966FF',
-            '#ff9F40',
-            '#C9CBCF',
+            '#ef4444',
+            '#3b82f6',
+            '#8b5cf6',
+            '#10b981',
+            '#f59e0b',
+            '#ec4899',
+            '#64748b',
           ],
+          borderWidth: 2,
+          borderColor: '#0f172a'
         },
       ],
     },
@@ -121,7 +158,7 @@ function renderizargrafico(filtradas) {
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { color: isDarkMode ? '#ffffff' : '#333333' },
+          labels: { color: '#94a3b8', font: { family: 'Inter' } },
         },
       },
     },
@@ -141,10 +178,12 @@ function renderizarTransacoes() {
     li.innerHTML = `
             <div class="item-info">
                 <strong>${transacao.descricao}</strong>
-                <span class="item-categoria">${transacao.categoria} | ${transacao.data}</span>
+                <span class="item-categoria">${transacao.categoria} • ${transacao.data}</span>
             </div>
             <div>
-                <span>${sinal} ${formatarMoeda(Number(transacao.valor))}</span>
+                <span style="font-weight: 600; color: ${transacao.tipo === 'entrada' ? '#10b981' : '#ef4444'}">
+                  ${sinal} ${formatarMoeda(Number(transacao.valor))}
+                </span>
                 <button class="btn-deletar" data-id="${transacao.id}">X</button>
             </div>
         `;
@@ -160,22 +199,21 @@ function renderizarTransacoes() {
 async function adicionarTransacao(e) {
   e.preventDefault();
 
+  const valorNum = converterValorParaNumero(valorInput.value);
+
   const novaTransacao = {
     descricao: descricaoInput.value.trim(),
-    valor: parseFloat(valorInput.value),
+    valor: valorNum,
     data: dataInput.value,
     tipo: tipoSelect.value,
     categoria: categoriaSelect.value,
     usuario: { id: usuarioLogado.id },
   };
 
-  if (
-    !novaTransacao.descricao ||
-    isNaN(novaTransacao.valor) ||
-    novaTransacao.valor <= 0 ||
-    !novaTransacao.data
-  )
+  if (!novaTransacao.descricao || isNaN(novaTransacao.valor) || novaTransacao.valor <= 0 || !novaTransacao.data) {
+    mostrarToast('Preencha os campos corretamente', 'erro');
     return;
+  }
 
   try {
     const resposta = await fetch(API_URL, {
@@ -189,53 +227,44 @@ async function adicionarTransacao(e) {
       valorInput.value = '';
       descricaoInput.focus();
       carregarTransacoes();
+      mostrarToast('Transação cadastrada com sucesso!');
     }
   } catch (erro) {
-    console.error('Erro ao salvar transação:', erro);
+    mostrarToast('Erro ao salvar transação', 'erro');
   }
 }
 
-// 4. DELETE: Remover transação
-async function removertransacao(id) {
-  try {
-    const resposta = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-    if (resposta.ok) {
-      carregarTransacoes(); // Recarrega os dados do banco
-    }
-  } catch (erro) {
-    console.error('Erro ao deletar transação:', erro);
-  }
-}
-
-// Event listeners
+// Modal lógica
 listaTransacoes.addEventListener('click', (e) => {
   if (e.target.classList.contains('btn-deletar')) {
-    const id = e.target.getAttribute('data-id');
-    removertransacao(id);
+    idParaDeletar = e.target.getAttribute('data-id');
+    modalConfirm.classList.add('active');
+  }
+});
+
+btnCancelarModal.addEventListener('click', () => {
+  idParaDeletar = null;
+  modalConfirm.classList.remove('active');
+});
+
+btnConfirmarModal.addEventListener('click', async () => {
+  if (!idParaDeletar) return;
+  try {
+    const resposta = await fetch(`${API_URL}/${idParaDeletar}`, {method: 'DELETE'});
+    if (resposta.ok) {
+      mostrarToast('Transação removida!');
+      carregarTransacoes();
+    }
+  } catch (erro) {
+    mostrarToast('Erro ao deletar item', 'erro');
+  } finally {
+    idParaDeletar = null;
+    modalConfirm.classList.remove('active');
   }
 });
 
 filtroMesInput.addEventListener('change', renderizarTransacoes);
 
-// Controle do Tema Escuro
-function aplicarTema(dark) {
-  if (dark) {
-    document.body.classList.add('dark-mode');
-    btnTema.textContent = '☀️ Modo Claro';
-  } else {
-    document.body.classList.remove('dark-mode');
-    btnTema.textContent = '🌙 Modo Escuro';
-  }
-}
-
-const modoEscuroSalvo = JSON.parse(localStorage.getItem('modoEscuro')) || false;
-aplicarTema(modoEscuroSalvo);
-
-btnTema.addEventListener('click', () => {
-  const isDark = document.body.classList.toggle('dark-mode');
-  localStorage.setItem('modoEscuro', JSON.stringify(isDark));
-  btnTema.textContent = isDark ? '☀️ Modo Claro' : '🌙 Modo Escuro';
-});
 
 // Ação do Botão de Logout
 btnLogout.addEventListener('click', () => {

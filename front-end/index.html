@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Planilha Financeira</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="./style.css" />
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,16 +17,31 @@
   <body>
     <div class="container">
       <div class="header">
-        <h1>Controle Financeiro</h1>
-        <button id="btn-tema" class="btn-tema" type="button">
-          🌙 Modo Escuro
-        </button>
+        <div class="header-title">
+          <div class="brand-logo-sm">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path
+                d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
+              ></path>
+            </svg>
+          </div>
+          <h1>Controle Financeiro</h1>
+        </div>
         <button id="btn-logout" class="btn-logout" type="button">Sair</button>
       </div>
 
       <!-- Filtro por Mês/Ano -->
       <div class="filtro-container">
-        <label for="filtro-mes">Filtrar por Mês:</label>
+        <label for="filtro-mes">FILTRAR POR MÊS</label>
         <input type="month" id="filtro-mes" />
       </div>
 
@@ -42,21 +63,23 @@
 
       <!-- Formulário de Cadastro -->
       <form id="form-transacao">
-        <input
-          type="text"
-          id="descricao"
-          placeholder="Descrição (ex: Mercado,Salário)"
-          required
-        />
-        <input
-          type="number"
-          id="valor"
-          placeholder="Valor (R$)"
-          step="0.01"
-          min="0.01"
-          required
-        />
-        <input type="date" id="data" required />
+        <div class="form-group">
+          <input
+            type="text"
+            id="descricao"
+            placeholder="Descrição (ex: Mercado,Salário)"
+            required
+          />
+        </div>
+        <div class="form-row">
+          <input
+            type="text"
+            id="valor"
+            placeholder="Valor (R$ 0,00)"
+            required
+          />
+          <input type="date" id="data" required />
+        </div>
 
         <div class="form-row">
           <select id="tipo" required>
@@ -75,7 +98,7 @@
           </select>
         </div>
 
-        <button type="submit">Adicionar</button>
+        <button type="submit" class="btn-submit">Adicionar Transação</button>
       </form>
 
       <!-- Seção do gráfico -->
@@ -86,8 +109,27 @@
 
       <!-- Lista de Transações -->
       <h2>Histórico do Mês</h2>
+      <div id="loading" class="spinner-container" style="display: none;">
+        <div class="spinner"></div>
+      </div>
       <ul id="lista-transacoes"></ul>
     </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="modal-confirm" class="modal-overlay">
+      <div class="modal-box">
+        <h3>Excluir Transação</h3>
+        <p>Tem certeza que deseja remover este item? Esta ação não pode ser desfeita.</p>
+        <div class="modal-actions">
+          <button id="btn-cancelar-modal" class="btn-secondary">Cancelar</button>
+          <button id="btn-confirmar-modal" class="btn-danger">Excluir</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Container de Toasts (Notificações) -->
+    <div id="toast-container"></div>
+
 
     <script src="./main.js"></script>
   </body>

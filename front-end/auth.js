@@ -20,7 +20,7 @@ linkAlternar.addEventListener('click', (e) => {
 
   if (modoCadastro) {
     tituloForm.textContent = 'Criar Nova Conta';
-    campoNome.style.display = 'block';
+    campoNome.style.display = 'flex';
     nomeInput.required = true;
     btnSubmit.textContent = 'Cadastrar';
     textoAlternar.textContent = 'Já tem uma conta?';
@@ -57,15 +57,13 @@ formAuth.addEventListener('submit', async (e) => {
     });
 
     if (!resposta.ok) {
-      throw new Error(
-        modoCadastro ? 'Erro ao cadastrar usuário' : 'Email ou senha incorretos'
-      );
+      const mensagemErro = await resposta.text();
+      throw new Error(mensagemErro || 'Erro de autenticação');
     }
 
     const usuario = await resposta.json();
     localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
 
-    // Redirecionamento com caminho relativo
     window.location.href = './index.html';
   } catch (erro) {
     msgErro.textContent = erro.message;
