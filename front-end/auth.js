@@ -61,11 +61,38 @@ formAuth.addEventListener('submit', async (e) => {
       throw new Error(mensagemErro || 'Erro de autenticação');
     }
 
-    const usuario = await resposta.json();
+    const respostaData = await resposta.json();
+
+    // Se for cadastro, redireciona o usuário para fazer login~
+    if (modoCadastro) {
+      modoCadastro = false;
+      tituloForm.textContent = 'Entrar no Sistema';
+      campoNome.style.display = 'none';
+      nomeInput.required = false;
+      btnSubmit.textContent = 'Entrar';
+      textoAlternar.textContent = 'Não tem uma conta?';
+      linkAlternar.textContent = 'Cadastre-se';
+      msgErro.style.color = '#10b981';
+      msgErro.textContent = 'Cadastro realizado com sucesso! Faça login.';
+      return;
+    }
+
+    // Processamento do Login (Suporta múltiplos formatos de resposta da API)
+    const token = respostaData.token || respostaData.jwt || respostaData;
+    const usuario = respostaData.usuario || respostaData.user || {
+      id: respostaData.id,
+      nome: respostaData.nome,
+      email: respostaData.email
+    };
+
+    let tokenString = typeof respostaData === 'string' ? respostaData : (respostaData.token || respostaData.jwt);
+
+    localStorage.setItem('token', tokenString);
     localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
 
     window.location.href = './index.html';
   } catch (erro) {
+    msgErro.style.color = '#ef4444';
     msgErro.textContent = erro.message;
   }
 });

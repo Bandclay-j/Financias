@@ -1,11 +1,42 @@
-// 1. Trava de Segurança: redireciona imediatamente se não houver sessão ativa
+// 1. Trava de Segurança: redireciona imediatamente se não houver sessão/token ativa
 const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+const token = localStorage.getItem('token');
 
-if (!usuarioLogado) {
+if (!usuarioLogado || !token) {
+  localStorage.removeItem('usuarioLogado');
+  localStorage.removeItem('token');
   window.location.href = './login.html';
 }
 
 const API_URL = 'http://localhost:8080/api/transacoes';
+
+// Helper para fazer requisitações HTTP enviando o Bearer Token do JWT
+async function fetchAutenticado(url, options = {}) {
+  const tokenAtual = localStorage.getItem('token');
+
+  if (!tokenAtual) {
+    window.location.href = './login.html';
+    return;
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${tokenAtual}`,
+    ...options.headers,
+  };
+
+  const resposta = await fetch(url, { ...options, headers });
+
+  // Se o token expirar ou for inválido (HTTP 401 ou 403), redireciona para o login
+  if (resposta.status === 401 || resposta.status === 403) {
+    localStorage.removeItem('usuarioLogado');
+    localStorage.removeItem('token');
+    window.location.href = './login.html';
+    return;
+  } 
+
+  return resposta;
+}
 
 const form = document.getElementById('form-transacao');
 const descricaoInput = document.getElementById('descricao');
@@ -92,8 +123,8 @@ async function carregarTransacoes() {
   if (!usuarioLogado) return;
   loadingEl.style.display = 'flex';
   try {
-    const resposta = await fetch(`${API_URL}/usuario/${usuarioLogado.id}`);
-    if (!resposta.ok) throw new Error('Erro ao buscar dados do servidor');
+    const resposta = await fetchAutenticado(`${API_URL}/usuario/${usuarioLogado.id}`);
+    if (!resposta || !resposta.ok) throw new Error('Erro ao buscar dados do servidor');
     transacoes = await resposta.json();
     renderizarTransacoes();
   } catch (erro) {
@@ -233,13 +264,12 @@ async function adicionarTransacao(e) {
   }
 
   try {
-    const resposta = await fetch(API_URL, {
+    const resposta = await fetchAutenticado(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(novaTransacao),
     });
 
-    if (resposta.ok) {
+    if (resposta && resposta.ok) {
       descricaoInput.value = '';
       valorInput.value = '';
       descricaoInput.focus();
@@ -282,8 +312,8 @@ btnCancelarModal.addEventListener('click', () => {
 btnConfirmarModal.addEventListener('click', async () => {
   if (!idParaDeletar) return;
   try {
-    const resposta = await fetch(`${API_URL}/${idParaDeletar}`, { method: 'DELETE'});
-    if (resposta.ok) {
+    const resposta = await fetchAutenticado(`${API_URL}/${idParaDeletar}`, { method: 'DELETE'});
+    if (resposta && resposta.ok) {
       mostrarToast('Transação removida!');
       carregarTransacoes();
     }
@@ -317,13 +347,12 @@ formEditar.addEventListener('submit', async (e) => {
   };
 
   try {
-    const resposta = await fetch(`${API_URL}/${id}`, {
+    const resposta = await fetchAutenticado(`${API_URL}/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type' : 'application/json' },
       body: JSON.stringify(transacaoAtualizada),
     });
 
-    if (resposta.ok) {
+    if (resposta && resposta.ok) {
       modalEdit.classList.remove('active');
       mostrarToast('Transação atualizada!');
       carregarTransacoes();
@@ -416,11 +445,12 @@ filtroMesInput.addEventListener('change', renderizarTransacoes);
 
 btnLogout.addEventListener('click', () => {
   localStorage.removeItem('usuarioLogado');
+  localStorage.removeItem('token');
   window.location.href = './login.html';
 });
 
 form.addEventListener('submit', adicionarTransacao);
 
-if (usuarioLogado) {
+if (usuarioLogado && token) {
   carregarTransacoes();
 }
