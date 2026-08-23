@@ -22,11 +22,24 @@ const totalSaidasEl = document.getElementById('total-saidas');
 const saldoTotalEl = document.getElementById('saldo-total');
 const btnLogout = document.getElementById('btn-logout');
 
-// Elementos do Modal
+// Elementos do Modais
 const modalConfirm = document.getElementById('modal-confirm');
 const btnCancelarModal = document.getElementById('btn-cancelar-modal');
 const btnConfirmarModal = document.getElementById('btn-confirmar-modal');
 let idParaDeletar = null;
+
+const modalEdit = document.getElementById('modal-edit');
+const formEditar = document.getElementById('form-editar-transacao');
+const editIdInput = document.getElementById('edit-id');
+const editDescricaoInput = document.getElementById('edit-descricao');
+const editValorInput = document.getElementById('edit-valor');
+const editDataInput = document.getElementById('edit-data');
+const editTipoSelect = document.getElementById('edit-tipo');
+const editCategoriaSelect = document.getElementById('edit-categoria');
+const btnCancelarEdit = document.getElementById('btn-cancelar-edit');
+
+const btnExportCsv = document.getElementById('btn-export-csv');
+const btnExportPdf = document.getElementById('btn-export-pdf');
 
 let meuGrafico = null;
 let transacoes = [];
@@ -50,15 +63,20 @@ function mostrarToast(mensagem, tipo = 'sucesso') {
 }
 
 // Máscara de Moeda no Input
-valorInput.addEventListener('input', (e) => {
-  let value = e.target.value.replace(/\D/g, '');
-  if (!value) {
-    e.target.value = '';
-    return;
-  }
-  value = (parseFloat(value) / 100).toFixed(2);
-  e.target.value = 'R$ ' + value.replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
-});
+function aplicarMascaraMoeda(input) {
+  input.addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (!value) {
+      e.target.value = '';
+      return;
+    }
+    value = (parseFloat(value) / 100).toFixed(2);
+    e.target.value = 'R$ ' + value.replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+  });
+}
+
+aplicarMascaraMoeda(valorInput);
+aplicarMascaraMoeda(editValorInput);
 
 function converterValorParaNumero(str) {
   if (!str) return 0;
@@ -72,6 +90,7 @@ function formatarMoeda(valor) {
 // 2. READ: Buscar transações vinculadas exclusivamente ao ID do Usuário logado
 async function carregarTransacoes() {
   if (!usuarioLogado) return;
+  loadingEl.style.display = 'flex';
   try {
     const resposta = await fetch(`${API_URL}/usuario/${usuarioLogado.id}`);
     if (!resposta.ok) throw new Error('Erro ao buscar dados do servidor');
@@ -87,7 +106,6 @@ async function carregarTransacoes() {
 function obterTransacoesFiltradas() {
   const mesSelecionado = filtroMesInput.value;
   if (!mesSelecionado) return transacoes;
-
   return transacoes.filter((t) => t.data && t.data.startsWith(mesSelecionado));
 }
 
@@ -112,8 +130,6 @@ function renderizargrafico(filtradas) {
   if (!canvas) return;
 
   const ctx = canvas.getContext('2d');
-
-  // Filtra apenas saídas para o gráfico de categorias
   const saidas = filtradas.filter((t) => t.tipo === 'saida');
 
   const categoriasValores = {};
@@ -184,7 +200,8 @@ function renderizarTransacoes() {
                 <span style="font-weight: 600; color: ${transacao.tipo === 'entrada' ? '#10b981' : '#ef4444'}">
                   ${sinal} ${formatarMoeda(Number(transacao.valor))}
                 </span>
-                <button class="btn-deletar" data-id="${transacao.id}">X</button>
+                <button class="btn-editar" data-id="${transacao.id}">✎</button>
+                <button class="btn-deletar" data-id="${transacao.id}">✕</button>
             </div>
         `;
 
@@ -234,14 +251,29 @@ async function adicionarTransacao(e) {
   }
 }
 
-// Modal lógica
+// Clique nos Botões Editar / Deletar do histórico
 listaTransacoes.addEventListener('click', (e) => {
+  const id = e.target.getAttribute('data-id');
+  if (!id) return;
+
   if (e.target.classList.contains('btn-deletar')) {
-    idParaDeletar = e.target.getAttribute('data-id');
+    idParaDeletar = id;
     modalConfirm.classList.add('active');
+  } else if (e.target.classList.contains('btn-editar')) {
+    const item = transacoes.find((t) => String(t.id) === String(id));
+    if (item) {
+      editIdInput.value = item.id;
+      editDescricaoInput.value = item.descricao;
+      editValorInput.value = formatarMoeda(Number(item.valor));
+      editDataInput.value = item.data;
+      editTipoSelect.value = item.tipo;
+      editCategoriaSelect.value = item.categoria;
+      modalEdit.classList.add('active');
+    }
   }
 });
 
+// Modal Deletar Lógica
 btnCancelarModal.addEventListener('click', () => {
   idParaDeletar = null;
   modalConfirm.classList.remove('active');
@@ -250,7 +282,7 @@ btnCancelarModal.addEventListener('click', () => {
 btnConfirmarModal.addEventListener('click', async () => {
   if (!idParaDeletar) return;
   try {
-    const resposta = await fetch(`${API_URL}/${idParaDeletar}`, {method: 'DELETE'});
+    const resposta = await fetch(`${API_URL}/${idParaDeletar}`, { method: 'DELETE'});
     if (resposta.ok) {
       mostrarToast('Transação removida!');
       carregarTransacoes();
@@ -258,15 +290,130 @@ btnConfirmarModal.addEventListener('click', async () => {
   } catch (erro) {
     mostrarToast('Erro ao deletar item', 'erro');
   } finally {
-    idParaDeletar = null;
+    idParaDeletar=null;
     modalConfirm.classList.remove('active');
   }
 });
 
+// Modal Editar Lógica
+btnCancelarEdit.addEventListener('click', () => {
+  modalEdit.classList.remove('active');
+});
+
+formEditar.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const id = editIdInput.value;
+  const valorNum = converterValorParaNumero(editValorInput.value);
+
+  const transacaoAtualizada = {
+    id: id,
+    descricao: editDescricaoInput.value.trim(),
+    valor: valorNum,
+    data: editDataInput.value,
+    tipo: editTipoSelect.value,
+    categoria: editCategoriaSelect.value,
+    usuario: { id: usuarioLogado.id },
+  };
+
+  try {
+    const resposta = await fetch(`${API_URL}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type' : 'application/json' },
+      body: JSON.stringify(transacaoAtualizada),
+    });
+
+    if (resposta.ok) {
+      modalEdit.classList.remove('active');
+      mostrarToast('Transação atualizada!');
+      carregarTransacoes();
+    } else {
+      throw new Error('Falha ao atualizar');
+    }
+  } catch (erro) {
+    mostrarToast('Erro ao atualizar transação', 'erro');
+  }
+});
+
+// Exportar para CSV
+btnExportCsv.addEventListener('click', () => {
+  if (!transacoes || transacoes.length === 0) {
+    mostrarToast('Nenhuma transação para exportar neste mês.', 'erro');
+    return;
+  }
+
+  // Cabeçalho do CSV
+  let csvContent = 'Descrição;Valor (R$);Tipo;Data;Categoria\n';
+
+  // Conteúdo das linhas
+  transacoes.forEach((t) => {
+    const descricao = `"${t.descricao.replace(/"/g, '""')}"`;
+    const valor = t.valor.toFixed(2).replace('.', ',');
+    const tipo = t.tipo === 'RECEITA' ? 'Entrada' : 'Saída';
+    const data = t.data;
+    const categoria = `"${t.categoria || 'Geral'}"`;
+
+    csvContent += `${descricao};${valor};${tipo};${data};${categoria}\n`;
+  });
+
+  // Adiciona o BOM (\uFEFF) para garantir acentuação correta no Excel
+  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `relatorio_${filtroMesInput.value}.csv`);
+  document.body.appendChild(link);
+
+  // Executa o download
+  link.click();
+
+  // Aguarda o navegador processar o download antes de remover a URL do Blob
+  setTimeout(() => {
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, 500);
+
+  mostrarToast('Relatório CSV baixado com sucesso!');
+});
+
+// Exportar para PDF (Ajustado em Página Única)
+btnExportPdf.addEventListener('click', () => {
+  if (typeof html2pdf === 'undefined') {
+    mostrarToast('Biblioteca de PDF ainda carregando. Tente novamente em instantes.', 'erro');
+    return;
+  }
+
+  const element = document.getElementById('conteudo-relatorio');
+
+  document.body.classList.add('imprimindo-pdf');
+
+  const opt = {
+    margin: [0.2, 0.2, 0.2, 0.2], // Margens reduzidas
+    filename: `relatorio_${filtroMesInput.value}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } // Evita quebrar elementos ao meio
+  };
+
+  mostrarToast('Gerando relatório PDF...');
+
+  html2pdf()
+    .set(opt)
+    .from(element)
+    .save()
+    .then(() => {
+      document.body.classList.remove('imprimindo-pdf');
+    })
+    .catch(() => {
+      document.body.classList.remove('imprimindo-pdf');
+      mostrarToast('Erro ao gerar PDF', 'erro');
+    });
+});
+
 filtroMesInput.addEventListener('change', renderizarTransacoes);
 
-
-// Ação do Botão de Logout
 btnLogout.addEventListener('click', () => {
   localStorage.removeItem('usuarioLogado');
   window.location.href = './login.html';
@@ -274,7 +421,6 @@ btnLogout.addEventListener('click', () => {
 
 form.addEventListener('submit', adicionarTransacao);
 
-// Inicialização das transações se o usuário estiver autenticado
 if (usuarioLogado) {
   carregarTransacoes();
 }

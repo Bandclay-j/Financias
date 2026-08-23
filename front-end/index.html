@@ -11,11 +11,10 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./style.css" />
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  </head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>  </head>
   <body>
-    <div class="container">
+    <div class="container" id="conteudo-relatorio">
       <div class="header">
         <div class="header-title">
           <div class="brand-logo-sm">
@@ -106,16 +105,22 @@
         <h2>Gastos por Categoria</h2>
         <canvas id="grafico-categorias"></canvas>
       </div>
+      
+      <div class="historico-header">
+        <h2>Histórico do Mês</h2>
+        <div class="export-actions">
+          <button id="btn-export-csv" class="btn-export" type="button">📊 CSV</button>
+          <button id="btn-export-pdf" class="btn-export" type="button">📄 PDF</button>
+        </div>
+      </div>
 
-      <!-- Lista de Transações -->
-      <h2>Histórico do Mês</h2>
       <div id="loading" class="spinner-container" style="display: none;">
         <div class="spinner"></div>
       </div>
       <ul id="lista-transacoes"></ul>
     </div>
 
-    <!-- Modal de Confirmação -->
+    <!-- Modal de Confirmação de Exclusão -->
     <div id="modal-confirm" class="modal-overlay">
       <div class="modal-box">
         <h3>Excluir Transação</h3>
@@ -126,6 +131,42 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de Edição -->
+     <div id="modal-edit" class="modal-overlay">
+      <div class="modal-box">
+        <h3>Editar Transação</h3>
+        <form id="form-editar-transacao">
+          <input type="hidden" id="edit-id" />
+          <div class="form-group" style="margin-bottom: 10px;">
+            <input type="text" id="edit-descricao" placeholder="Descrição" required />
+          </div>
+          <div class="form-row" style="margin-bottom: 10px;">
+            <input type="text" id="edit-valor" placeholder="Valor" required />
+            <input type="date" id="edit-data" required />
+          </div>
+          <div class="form-row" style="margin-bottom: 16px;">
+            <select id="edit-tipo" required>
+              <option value="saida">Saída</option>
+              <option value="entrada">Entrada</option>
+            </select>
+            <select id="edit-categoria" required>
+              <option value="Alimentação">Alimentação</option>
+              <option value="Moradia">Moradia</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Lazer">Lazer</option>
+              <option value="Saúde">Saúde</option>
+              <option value="Salário">Salário</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+          <div class="modal-actions">
+            <button type="button" id="btn-cancelar-edit" class="btn-secondary">Cancelar</button>
+            <button type="submit" class="btn-submit" style="padding: 8px 16px;">Salvar</button>
+          </div>
+        </form>
+      </div>
+     </div>
 
     <!-- Container de Toasts (Notificações) -->
     <div id="toast-container"></div>
