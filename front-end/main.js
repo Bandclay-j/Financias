@@ -343,7 +343,7 @@ formEditar.addEventListener('submit', async (e) => {
     data: editDataInput.value,
     tipo: editTipoSelect.value,
     categoria: editCategoriaSelect.value,
-    usuario: { id: usuarioLogado.id },
+    usuarioId: usuarioLogado.id,
   };
 
   try {
