@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 import com.financeiro.planilha_financeira.model.Transacao;
 
-public record DadosDetalhamentoTransacao(Long id, String descricao, BigDecimal valor, LocalDate data, String tipo, String categoria, Long usuarioId) {
+public record DadosDetalhamentoTransacao(Long id, String descricao, BigDecimal valor, LocalDate data, String tipo, String categoria, String conta, Long usuarioId) {
     public DadosDetalhamentoTransacao(Transacao transacao) {
         this(
             transacao.getId(),
@@ -14,6 +14,7 @@ public record DadosDetalhamentoTransacao(Long id, String descricao, BigDecimal v
             transacao.getData(),
             transacao.getTipo(),
             transacao.getCategoria(),
+            transacao.getConta(),
             transacao.getUsuario() != null ? transacao.getUsuario().getId() : null
         );
     }

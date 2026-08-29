@@ -44,10 +44,16 @@ const valorInput = document.getElementById('valor');
 const dataInput = document.getElementById('data');
 const tipoSelect = document.getElementById('tipo');
 const categoriaSelect = document.getElementById('categoria');
+const contaSelect = document.getElementById('conta');
+
+//Elementos dos Filtros Avançados
 const filtroMesInput = document.getElementById('filtro-mes');
+const filtroBuscaInput = document.getElementById('filtro-busca');
+const filtroCategoriaSelect = document.getElementById('filtro-categoria');
+const filtroContaSelect = document.getElementById('filtro-conta');
+
 const listaTransacoes = document.getElementById('lista-transacoes');
 const loadingEl = document.getElementById('loading');
-
 const totalEntradasEl = document.getElementById('total-entradas');
 const totalSaidasEl = document.getElementById('total-saidas');
 const saldoTotalEl = document.getElementById('saldo-total');
@@ -67,6 +73,7 @@ const editValorInput = document.getElementById('edit-valor');
 const editDataInput = document.getElementById('edit-data');
 const editTipoSelect = document.getElementById('edit-tipo');
 const editCategoriaSelect = document.getElementById('edit-categoria');
+const editContaSelect = document.getElementById('edit-conta');
 const btnCancelarEdit = document.getElementById('btn-cancelar-edit');
 
 const btnExportCsv = document.getElementById('btn-export-csv');
@@ -123,7 +130,7 @@ async function carregarTransacoes() {
   if (!usuarioLogado) return;
   loadingEl.style.display = 'flex';
   try {
-    const resposta = await fetchAutenticado(`${API_URL}/usuario/${usuarioLogado.id}`);
+    const resposta = await fetchAutenticado(API_URL);
     if (!resposta || !resposta.ok) throw new Error('Erro ao buscar dados do servidor');
     transacoes = await resposta.json();
     renderizarTransacoes();
@@ -135,9 +142,19 @@ async function carregarTransacoes() {
 }
 
 function obterTransacoesFiltradas() {
-  const mesSelecionado = filtroMesInput.value;
-  if (!mesSelecionado) return transacoes;
-  return transacoes.filter((t) => t.data && t.data.startsWith(mesSelecionado));
+  const mesSelecionado = filtroMesInput ? filtroMesInput.value : '';
+  const termoBusca = filtroBuscaInput ? filtroBuscaInput.value.toLowerCase().trim() : '';
+  const categoriaSelecionada = filtroCategoriaSelect ? filtroCategoriaSelect.value : '';
+  const contaSelecionada = filtroContaSelect ? filtroContaSelect.value : '';
+
+  return transacoes.filter((t) => {
+    const atendeMes = !mesSelecionado || (t.data && String(t.data).startsWith(mesSelecionado));
+    const atendeBusca = !termoBusca || t.descricao.toLowerCase().includes(termoBusca);
+    const atendeCategoria = !categoriaSelecionada || t.categoria === categoriaSelecionada;
+    const atendeConta = !contaSelecionada || t.conta === contaSelecionada;
+
+    return atendeMes && atendeBusca && atendeCategoria && atendeConta;
+  });
 }
 
 function atualizarResumo(filtradas) {
@@ -221,11 +238,12 @@ function renderizarTransacoes() {
     li.classList.add(transacao.tipo);
 
     const sinal = transacao.tipo === 'entrada' ? '+' : '-';
+    const contaTag = transacao.conta ? ` • ${transacao.conta}` : '';
 
     li.innerHTML = `
             <div class="item-info">
                 <strong>${transacao.descricao}</strong>
-                <span class="item-categoria">${transacao.categoria} • ${transacao.data}</span>
+                <span class="item-categoria">${transacao.categoria}${contaTag} • ${transacao.data}</span>
             </div>
             <div>
                 <span style="font-weight: 600; color: ${transacao.tipo === 'entrada' ? '#10b981' : '#ef4444'}">
@@ -255,7 +273,8 @@ async function adicionarTransacao(e) {
     data: dataInput.value,
     tipo: tipoSelect.value,
     categoria: categoriaSelect.value,
-    usuario: { id: usuarioLogado.id },
+    conta: contaSelect ? contaSelect.value : 'Carteira',
+    usuarioId:  usuarioLogado.id,
   };
 
   if (!novaTransacao.descricao || isNaN(novaTransacao.valor) || novaTransacao.valor <= 0 || !novaTransacao.data) {
@@ -298,6 +317,7 @@ listaTransacoes.addEventListener('click', (e) => {
       editDataInput.value = item.data;
       editTipoSelect.value = item.tipo;
       editCategoriaSelect.value = item.categoria;
+      if (editContaSelect) editContaSelect.value = item.conta || 'Carteira';
       modalEdit.classList.add('active');
     }
   }
@@ -343,6 +363,7 @@ formEditar.addEventListener('submit', async (e) => {
     data: editDataInput.value,
     tipo: editTipoSelect.value,
     categoria: editCategoriaSelect.value,
+    conta: editContaSelect ? editContaSelect.value : 'Carteira',
     usuarioId: usuarioLogado.id,
   };
 
@@ -366,23 +387,25 @@ formEditar.addEventListener('submit', async (e) => {
 
 // Exportar para CSV
 btnExportCsv.addEventListener('click', () => {
-  if (!transacoes || transacoes.length === 0) {
-    mostrarToast('Nenhuma transação para exportar neste mês.', 'erro');
+  const filtradas = obterTransacoesFiltradas();
+  if (!filtradas || filtradas.length === 0) {
+    mostrarToast('Nenhuma transação para exportar.', 'erro');
     return;
   }
 
   // Cabeçalho do CSV
-  let csvContent = 'Descrição;Valor (R$);Tipo;Data;Categoria\n';
+  let csvContent = 'Descrição;Valor (R$);Tipo;Data;Categoria;Conta\n';
 
   // Conteúdo das linhas
   transacoes.forEach((t) => {
     const descricao = `"${t.descricao.replace(/"/g, '""')}"`;
-    const valor = t.valor.toFixed(2).replace('.', ',');
-    const tipo = t.tipo === 'RECEITA' ? 'Entrada' : 'Saída';
+    const valor = Number(t.valor).toFixed(2).replace('.', ',');
+    const tipo = t.tipo === 'entrada' ? 'Entrada' : 'Saída';
     const data = t.data;
     const categoria = `"${t.categoria || 'Geral'}"`;
+    const conta = `${t.conta || 'Carteira'}`;
 
-    csvContent += `${descricao};${valor};${tipo};${data};${categoria}\n`;
+    csvContent += `${descricao};${valor};${tipo};${data};${categoria};${conta}\n`;
   });
 
   // Adiciona o BOM (\uFEFF) para garantir acentuação correta no Excel
@@ -441,7 +464,10 @@ btnExportPdf.addEventListener('click', () => {
     });
 });
 
-filtroMesInput.addEventListener('change', renderizarTransacoes);
+if (filtroMesInput) filtroMesInput.addEventListener('change', renderizarTransacoes);
+if (filtroBuscaInput) filtroBuscaInput.addEventListener('input', renderizarTransacoes);
+if (filtroCategoriaSelect) filtroCategoriaSelect.addEventListener('change', renderizarTransacoes);
+if (filtroContaSelect) filtroContaSelect.addEventListener('change', renderizarTransacoes);
 
 btnLogout.addEventListener('click', () => {
   localStorage.removeItem('usuarioLogado');

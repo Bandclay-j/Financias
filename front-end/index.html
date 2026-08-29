@@ -39,9 +39,37 @@
       </div>
 
       <!-- Filtro por Mês/Ano -->
-      <div class="filtro-container">
-        <label for="filtro-mes">FILTRAR POR MÊS</label>
-        <input type="month" id="filtro-mes" />
+      <div class="filtro-container" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+        <div>
+          <label for="filtro-mes">FILTRAR POR MÊS</label>
+          <input type="month" id="filtro-mes" />
+        </div>
+        <div>
+          <label for="filtro-busca">BUSCAR</label>
+          <input type="text" id="filtro-busca" placeholder="Buscar descrição...">
+        </div>
+        <div>
+          <label for="filtro-categoria">CATEGORIA</label>
+          <select id="filtro-categoria">
+            <option value="">Todas</option>
+            <option value="Alimentação">Alimentação</option>
+            <option value="Moradia">Moradia</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Lazer">Lazer</option>
+            <option value="Saúde">Saúde</option>
+            <option value="Salário">Salário</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+        <div>
+          <label for="filtro-conta">CONTA</label>
+          <select id="filtro-conta">
+            <option value="">Todas</option>
+            <option value="Pix / Dinheiro">Pix / Dinheiro</option>
+            <option value="Cartão de Crédito">Cartão de Crédito</option>
+            <option value="Carteira">Carteira</option>
+          </select>
+        </div>
       </div>
 
       <!-- Resumo do Mês -->
@@ -94,6 +122,13 @@
             <option value="Saúde">Saúde</option>
             <option value="Salário">Salário</option>
             <option value="Outros">Outros</option>
+          </select>
+
+          <select id="conta" required>
+            <option value="Pix / Dinheiro">Pix / Dinheiro</option>
+            <option value="Cartão de Crédito">Cartão de Crédito</option>
+            <option value="Conta Corrente">Conta Corrente</option>
+            <option value="Carteira">Carteira</option>
           </select>
         </div>
 
@@ -158,6 +193,14 @@
               <option value="Saúde">Saúde</option>
               <option value="Salário">Salário</option>
               <option value="Outros">Outros</option>
+            </select>
+
+            <!-- Novo Campo: Conta (Edição) -->
+            <select id="edit-conta" required>
+              <option value="Pix / Dinheiro">Pix / Dinheiro</option>
+              <option value="Cartão de Crédito">Cartão de Crédito</option>
+              <option value="Conta Corrente">Conta Corrente</option>
+              <option value="Carteira">Carteira</option>
             </select>
           </div>
           <div class="modal-actions">

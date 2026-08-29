@@ -24,6 +24,9 @@ public record DadosCadastroTransacao(
     @NotBlank(message = "A categoria é obrigatória")
     String categoria,
 
+    @NotBlank(message = "A conta é obrigatória")
+    String conta,
+
     @NotNull(message = "O ID do usuário é obrigatório")
     Long usuarioId
 ) {}
