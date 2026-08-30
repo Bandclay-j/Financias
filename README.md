@@ -155,5 +155,3 @@ api.security.token.secret=${JWT_SECRET:chave_secreta_para_desenvolvimento_local_
 * O arquivo `application.properties` contendo credenciais de banco e chaves secretas está configurado no `.gitignore` para prevenir vazamentos de dados em repositórios públicos.
 
 ```
-
-```
