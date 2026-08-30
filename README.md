@@ -153,5 +153,3 @@ api.security.token.secret=${JWT_SECRET:chave_secreta_para_desenvolvimento_local_
 
 * As requisições para a API de transações exigem o cabeçalho `Authorization: Bearer <token_jwt>`.
 * O arquivo `application.properties` contendo credenciais de banco e chaves secretas está configurado no `.gitignore` para prevenir vazamentos de dados em repositórios públicos.
-
-```
