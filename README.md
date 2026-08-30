@@ -1,5 +1,3 @@
-
-``
 # 💰 Gerenciador de Finanças Pessoais
 
 Aplicação Full Stack para controle de finanças pessoais, permitindo o gerenciamento seguro de entradas, saídas, categorias e visualização de resumos financeiros com gráficos interativos e exportação de relatórios.
