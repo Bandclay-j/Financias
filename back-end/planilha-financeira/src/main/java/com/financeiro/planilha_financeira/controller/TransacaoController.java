@@ -19,9 +19,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.financeiro.planilha_financeira.dto.DadosCadastroTransacao;
 import com.financeiro.planilha_financeira.dto.DadosDetalhamentoTransacao;
-import com.financeiro.planilha_financeira.model.Transacao;
 import com.financeiro.planilha_financeira.model.Usuario;
-import com.financeiro.planilha_financeira.repository.TransacaoRepository;
+import com.financeiro.planilha_financeira.service.TransacaoService;
 
 import jakarta.validation.Valid;
 
@@ -31,62 +30,47 @@ import jakarta.validation.Valid;
 public class TransacaoController {
 
     @Autowired
-    private TransacaoRepository transacaoRepository;
-
+    private TransacaoService transacaoService;
 
     @GetMapping
-    public List<DadosDetalhamentoTransacao> listarMinhasTransacoes(@AuthenticationPrincipal Usuario usuarioLogado) {
-        return transacaoRepository.findByUsuarioId(usuarioLogado.getId()).stream()
-            .map(DadosDetalhamentoTransacao::new)
-            .toList();
+    public ResponseEntity<List<DadosDetalhamentoTransacao>> listarMinhasTransacoes(@AuthenticationPrincipal Usuario usuarioLogado) {
+        List<DadosDetalhamentoTransacao> transacoes = transacaoService.listarPorUsuario(usuarioLogado);
+        return ResponseEntity.ok(transacoes);
     }
-
+    
     @PostMapping
-    public ResponseEntity<DadosDetalhamentoTransacao> criarTransacao(@RequestBody @Valid DadosCadastroTransacao dados, @AuthenticationPrincipal Usuario usuarioLogado, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<DadosDetalhamentoTransacao> criarTransacao(
+        @RequestBody @Valid DadosCadastroTransacao dados,
+        @AuthenticationPrincipal Usuario usuarioLogado,
+        UriComponentsBuilder uriBuilder) {
 
-        var transacao = new Transacao();
-        transacao.setDescricao(dados.descricao());
-        transacao.setValor(dados.valor());
-        transacao.setData(dados.data());
-        transacao.setTipo(dados.tipo());
-        transacao.setCategoria(dados.categoria());
-        transacao.setConta(dados.conta());
-        transacao.setUsuario(usuarioLogado);
-
-        var salva = transacaoRepository.save(transacao);
-        URI uri = uriBuilder.path("/api/transacoes/${id}").buildAndExpand(salva.getId()).toUri();
-        return ResponseEntity.created(uri).body(new DadosDetalhamentoTransacao(salva));
+            var salva = transacaoService.criar(dados, usuarioLogado);
+            URI uri = uriBuilder.path("/api/transacoes/{id}").buildAndExpand(salva.getId()).toUri();
+            return ResponseEntity.created(uri).body(new DadosDetalhamentoTransacao(salva));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DadosDetalhamentoTransacao> atualizarTransacao(@PathVariable Long id, @RequestBody @Valid DadosCadastroTransacao dados, @AuthenticationPrincipal Usuario usuarioLogado) {
-        return transacaoRepository.findById(id)
-        .filter(t -> t.getUsuario().getId().equals(usuarioLogado.getId()))
-            .map(transacaoExistente -> {
-                transacaoExistente.setDescricao(dados.descricao());
-                transacaoExistente.setValor(dados.valor());
-                transacaoExistente.setData(dados.data());
-                transacaoExistente.setTipo(dados.tipo());
-                transacaoExistente.setCategoria(dados.categoria());
-                transacaoExistente.setConta(dados.conta());
+    public ResponseEntity<DadosDetalhamentoTransacao> atualizarTransacao(
+        @PathVariable Long id,
+        @RequestBody @Valid DadosCadastroTransacao dados,
+        @AuthenticationPrincipal Usuario usuarioLogado) {
 
-                Transacao salva = transacaoRepository.save(transacaoExistente);
-                return ResponseEntity.ok(new DadosDetalhamentoTransacao(salva));
-            })
-            .orElse(ResponseEntity.notFound().build());
+            DadosDetalhamentoTransacao atualizada = transacaoService.atualizar(id, dados, usuarioLogado);
+            if (atualizada == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(atualizada);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarTransacao(
-        @PathVariable Long id, 
+        @PathVariable Long id,
         @AuthenticationPrincipal Usuario usuarioLogado) {
 
-       return transacaoRepository.findById(id)
-        .filter(t -> t.getUsuario().getId().equals(usuarioLogado.getId()))
-        .map(t -> {
-            transacaoRepository.delete(t);
-            return ResponseEntity.noContent().<Void>build();
-        })
-        .orElse(ResponseEntity.notFound().build());
+            boolean deletado = transacaoService.deletar(id, usuarioLogado);
+            if(!deletado) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.noContent().build();
     }
 }

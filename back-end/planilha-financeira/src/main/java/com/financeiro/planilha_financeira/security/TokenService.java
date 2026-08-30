@@ -1,21 +1,25 @@
 package com.financeiro.planilha_financeira.security;
 
+import java.security.Key;
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Service;
-
-import java.security.Key;
-import java.util.Date;
 
 @Service
 public class TokenService {
 
-    private static final String SECRET_KEY = "FdRc0M1UgOoDBkH1lPtrCDYnuEuAPI3I35JTq82Xu0r";
+    @Value("${api.security.token.secret}")
+    private String secretKey;
+
     private static final long EXPIRATION_TIME = 86400000; // 24 horas em ms
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
     public String gerarToken(String email) {
@@ -28,11 +32,15 @@ public class TokenService {
     }
 
     public String validarToken(String token) {
-        return Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
-            .build()
-            .parseClaimsJws(token)
-            .getBody()
-            .getSubject();
+        try {
+            return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
