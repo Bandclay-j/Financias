@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,7 +26,8 @@ public class Transacao {
     private String descricao;
     private BigDecimal valor;
     private LocalDate data;
-    private String tipo; // "entrada" ou "saída"
+    @Enumerated(EnumType.STRING)
+    private TipoTransacao tipo; // "entrada" ou "saída"
     private String categoria;
     private String conta;
     
@@ -47,8 +50,8 @@ public class Transacao {
     public LocalDate getData() { return data; }
     public void setData(LocalDate data) { this.data = data; }
 
-    public String getTipo() { return tipo; }
-    public void setTipo(String tipo) { this.tipo = tipo; }
+    public TipoTransacao getTipo() { return tipo; }
+    public void setTipo(TipoTransacao tipo) { this.tipo = tipo; }
 
     public String getCategoria() { return categoria; }
     public void setCategoria(String categoria) { this.categoria = categoria; }

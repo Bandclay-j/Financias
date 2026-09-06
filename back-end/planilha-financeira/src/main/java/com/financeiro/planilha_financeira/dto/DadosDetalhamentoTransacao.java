@@ -12,7 +12,7 @@ public record DadosDetalhamentoTransacao(Long id, String descricao, BigDecimal v
             transacao.getDescricao(),
             transacao.getValor(),
             transacao.getData(),
-            transacao.getTipo(),
+            transacao.getTipo() != null ? transacao.getTipo().name().toLowerCase() : null,
             transacao.getCategoria(),
             transacao.getConta(),
             transacao.getUsuario() != null ? transacao.getUsuario().getId() : null

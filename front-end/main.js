@@ -273,8 +273,7 @@ async function adicionarTransacao(e) {
     data: dataInput.value,
     tipo: tipoSelect.value,
     categoria: categoriaSelect.value,
-    conta: contaSelect ? contaSelect.value : 'Carteira',
-    usuarioId:  usuarioLogado.id,
+    conta: contaSelect ? contaSelect.value : 'Carteira'
   };
 
   if (!novaTransacao.descricao || isNaN(novaTransacao.valor) || novaTransacao.valor <= 0 || !novaTransacao.data) {

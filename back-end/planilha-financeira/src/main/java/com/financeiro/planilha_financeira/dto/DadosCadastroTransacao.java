@@ -3,6 +3,8 @@ package com.financeiro.planilha_financeira.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.financeiro.planilha_financeira.model.TipoTransacao;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -18,15 +20,12 @@ public record DadosCadastroTransacao(
     @NotNull(message = "A data é obrigatória")
     LocalDate data,
 
-    @NotBlank(message = "O tipo é obrigatório")
-    String tipo,
+    @NotNull(message = "O tipo é obrigatório")
+    TipoTransacao tipo,
 
     @NotBlank(message = "A categoria é obrigatória")
     String categoria,
 
     @NotBlank(message = "A conta é obrigatória")
-    String conta,
-
-    @NotNull(message = "O ID do usuário é obrigatório")
-    Long usuarioId
+    String conta
 ) {}
