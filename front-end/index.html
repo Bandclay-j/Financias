@@ -1,190 +1,385 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Planilha Financeira</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>  </head>
-  <body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>Controle Financeiro | Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" 
+    integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" 
+    crossorigin="anonymous" 
+    referrerpolicy="no-referrer"></script>
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="#inicio" aria-label="Controle Financeiro - início">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />  
+        </svg>
+      </span>
+      <span>
+        <strong>Finan<span>ceiro</span></strong>
+        <small>CONTROLE PESSOAL</small>
+      </span>
+    </a>
+
+    <div class="sidebar-label">MENU PRINCIPAL</div>
+
+    <nav class="side-nav" aria-label="Navegação Principal">
+      <a class="nav-link active" href="#inicio">
+        <span class="nav-icon">▦</span>
+        Visão geral
+      </a>
+      <a class="nav-link" href="#nova-transacao">
+        <span class="nav-icon">＋</span>
+        Nova transação
+      </a>
+      <a class="nav-link" href="#relatorios">
+        <span class="nav-icon">◔</span>
+        Relatórios
+      </a>
+      <a class="nav-link" href="#historico">
+        <span class="nav-icon">↕</span>
+        Histórico
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-tip">
+        <span class="tip-icon">✦</span>
+        <strong>Organize suas finanças</strong>
+        <p>
+          Acompanhe suas entradas e saídas em um só lugar.
+        </p>
+      </div>
+      <button id="btn-logout" class="btn-logout" type="button">
+        <span>↪</span>
+        Sair da Conta
+      </button>
+    </div>
+  </aside>
+
+  <div class="mobile-overlay" id="mobile-overlay"></div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="main-area">
+    <div class="topbar">
+      <button class="menu-toogle" id="menu-toogle" type="button" aria-label="Abrir menu">
+        ☰
+      </button>
+      <div>
+        <p class="eyebrow">SEU DINHEIRO, SOB CONTROLE</p>
+        <h1>Visão geral</h1>
+      </div>
+      <div class="topbar-date" id="data-atual">
+        Painel Financeiro
+      </div>
+    </div>
+
     <div class="container" id="conteudo-relatorio">
-      <div class="header">
-        <div class="header-title">
-          <div class="brand-logo-sm">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <line x1="12" y1="1" x2="12" y2="23"></line>
-              <path
-                d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
-              ></path>
-            </svg>
+      <!-- FILTROS -->
+      <section class="filter-panel" aria-label="Filtros das transições">
+        <div class="section-heading filter-heading">
+          <div>
+            <span class="eyebrow">ACOMPANHAMENTO</span>
+            <h2>Filtrar movimentações</h2>
           </div>
-          <h1>Controle Financeiro</h1>
+          <span class="filter-indicator">
+            <i></i>
+            Dados atualizados pelos filtros
+          </span>
         </div>
-        <button id="btn-logout" class="btn-logout" type="button">Sair</button>
+
+        <div class="filtro-container">
+          <div>
+            <label for="filtro-mes">PERÍODO</label>
+            <input type="month" id="filtro-mes" />
+          </div>
+
+          <div class="search-field">
+            <label for="filtro-busca">BUSCAR</label>
+            <input type="search" id="filtro-busca" placeholder="Descrição da transação..." />
+          </div>
+
+          <div>
+            <label for="filtro-categoria">CATEGORIA</label>
+            <select id="filtro-categoria">
+              <option value="">Todas as categorias</option>
+              <option value="Alimentação">Alimentação</option>
+              <option value="Moradia">Moradia</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Lazer">Lazer</option>
+              <option value="Saúde">Saúde</option>
+              <option value="Salário">Salário</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="filtro-conta">CONTA</label>
+            <select id="filtro-conta">
+              <option value="">Todas as contas</option>
+              <option value="Pix / Dinheiro">Pix / Dinheiro</option>
+              <option value="Cartão de Crédito">Cartão de Crédito</option>
+              <option value="Carteira">Carteira</option>
+              <option value="Conta Corrente">Conta Corrente</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESUMO FINANCEIRO -->
+      <section id="inicio" class="summary-section">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">RESUMO FINANCEIRO</span>
+            <h2>Seu mês em números</h2>
+          </div>
+        </div>
+
+        <div class="resumo">
+          <article class="card entrada">
+            <div class="metric-top">
+              <span class="metric-icon">↙</span>
+              <span class="metric-label">ENTRADAS</span>
+            </div>
+            <p id="total-entradas">R$ 0,00</p>
+            <small>Dinheiro que entrou</small>
+          </article>
+
+          <article class="card saida">
+            <div class="metric-top">
+              <span class="metric-icon">↗</span>
+              <span class="metric-label">SAÍDAS</span>
+            </div>
+            <p id="total-saidas">R$ 0,00</p>
+            <small>Dinheiro que saiu</small>
+          </article>
+
+          <article class="card saldo">
+            <div class="metric-top">
+              <span class="metric-icon">=</span>
+              <span class="metric-label">SALDO DO PERÍODO</span>
+            </div>
+            <p id="saldo-total">R$ 0,00</p>
+            <small>Entradas menos saídas</small>
+          </article>
+        </div>
+      </section>
+
+      <!-- FORMULÁRIO E GRÁFICO -->
+      <section class="workspace-grid">
+
+        <!-- NOVA TRANSAÇÂO -->
+        <section class="panel transaction-panel" id="nova-transacao">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">MOVIMENTAÇÃO</span>
+              <h2>Nova transação</h2>
+            </div>
+            <span class="panel-icon">＋</span>
+          </div>
+          <p class="panel-description">
+            Registre uma entrada ou saída para manter seu controle atualizado.
+          </p>
+          <form id="form-transacao">
+            <div class="form-group">
+              <label for="descricao">Descrição</label>
+              <input type="text" id="descricao" placeholder="Ex.: Compras no mercado" required maxlength="120" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="valor">Valor</label>
+                <input type="text" id="valor" inputmode="decimal" placeholder="R$ 0,00" required />
+              </div>
+
+              <div class="form-group">
+                <label for="data">Data</label>
+                <input type="date" id="data" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="tipo">Tipo de movimentação</label>
+              <select id="tipo" required>
+                <option value="" selected disabled>Selecione o tipo</option>
+                <option value="saida">Saída</option>
+                <option value="entrada">Entrada</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="categoria">Categoria</label>
+                <select id="categoria" required>
+                  <option value="" selected disabled>Selecione a categoria</option>
+                  <option value="Alimentação">Alimentação</option>
+                  <option value="Moradia">Moradia</option>
+                  <option value="Transporte">Transporte</option>
+                  <option value="Lazer">Lazer</option>
+                  <option value="Saúde">Saúde</option>
+                  <option value="Salário">Salário</option>
+                  <option value="Outros">Outros</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="conta">Conta / Pagamento</label>
+                <select id="conta" required>
+                  <option value="" selected disabled>Selecione a conta</option>
+                  <option value="Pix / Dinheiro">Pix / Dinheiro</option>
+                  <option value="Cartão de Crédito">Cartão de Crédito</option>
+                  <option value="Conta Corrente">Conta Corrente</option>
+                  <option value="Carteira">Carteira</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+              <span>＋</span>
+              Adicionar transação
+            </button>
+          </form>
+        </section>
+
+        <!-- GRÁFICO -->
+        <section class="panel grafico-container" id="relatorios">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">ANÁLISE</span>
+              <h2>Gastos por categoria</h2>
+            </div>
+
+            <span class="panel-icon">◔</span>
+          </div>
+
+          <p class="panel-description">
+            Veja como suas despesas estão distribuídas.
+          </p>
+
+          <div class="chart-wrap">
+            <canvas id="grafico-categorias"></canvas>
+            <p id="grafico-vazio" class="empty-chart" hidden>
+              Nenhuma despesa registrada neste período.
+            </p>
+          </div>
+        </section>
+      </section>
+
+      <!-- HISTÓRICO -->
+      <section class="panel history-panel" id="historico">
+        <div class="historico-header">
+          <div>
+            <span class="eyebrow">SUAS MOVIMENTAÇÕES</span>
+            <h2>Histórico de transações</h2>
+            <p class="panel-description">
+              Consulte, edite ou remova seus registros.
+            </p>
+          </div>
+
+          <div class="export-actions">
+            <button id="btn-export-csv" class="btn-export" type="button">
+              <span>↓</span>
+              Exportar CSV
+            </button>
+
+            <button id="btn-export-pdf" class="btn-export" type="button">
+              <span>▤</span>
+              Exportar PDF
+            </button>
+          </div>
+        </div>
+
+        <div id="loading" class="spinner-container" style="display: none;">
+          <div class="spinner"></div>
+          <span>Carregando movimentações...</span>
+        </div>
+
+        <ul id="lista-transacoes"></ul>
+      </section>
+
+      <footer class="app-footer">
+        Controle Financeiro
+        <span>•</span>
+        Organize hoje, conquiste amanhã.
+      </footer>
+    </div>
+  </main>
+
+  <!-- MODAL DE EXCLUSÃO -->
+  <div id="modal-confirm" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal-box">
+      <div class="modal-symbol danger-symbol">!</div>
+      <h3 id="confirm-title">Excluir transação?</h3>
+      <p>
+        Tem certeza que deseja remover este registro?
+        Esta ação não pode ser desfeita.
+      </p>
+      <div class="modal-actions">
+        <button id="btn-cancelar-modal" class="btn-secondary" type="button">
+          Cancelar
+        </button>
+        <button id="btn-confirmar-modal" class="btn-danger" type="button">
+          Excluir transação
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE EDIÇÃO -->
+  <div id="modal-edit" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+    <div class="modal-box modal-edit-box">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">ATUALIZAÇÃO</span>
+          <h3 id="edit-title">Editar transação</h3>
+        </div>
       </div>
 
-      <!-- Filtro por Mês/Ano -->
-      <div class="filtro-container" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
-        <div>
-          <label for="filtro-mes">FILTRAR POR MÊS</label>
-          <input type="month" id="filtro-mes" />
-        </div>
-        <div>
-          <label for="filtro-busca">BUSCAR</label>
-          <input type="text" id="filtro-busca" placeholder="Buscar descrição...">
-        </div>
-        <div>
-          <label for="filtro-categoria">CATEGORIA</label>
-          <select id="filtro-categoria">
-            <option value="">Todas</option>
-            <option value="Alimentação">Alimentação</option>
-            <option value="Moradia">Moradia</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Lazer">Lazer</option>
-            <option value="Saúde">Saúde</option>
-            <option value="Salário">Salário</option>
-            <option value="Outros">Outros</option>
-          </select>
-        </div>
-        <div>
-          <label for="filtro-conta">CONTA</label>
-          <select id="filtro-conta">
-            <option value="">Todas</option>
-            <option value="Pix / Dinheiro">Pix / Dinheiro</option>
-            <option value="Cartão de Crédito">Cartão de Crédito</option>
-            <option value="Carteira">Carteira</option>
-          </select>
-        </div>
-      </div>
+      <form id="form-editar-transacao">
+        <input type="hidden" id="edit-id" />
 
-      <!-- Resumo do Mês -->
-      <div class="resumo">
-        <div class="card entrada">
-          <h3>Entradas</h3>
-          <p id="total-entradas">R$ 0,00</p>
-        </div>
-        <div class="card saida">
-          <h3>Saídas</h3>
-          <p id="total-saidas">R$ 0,00</p>
-        </div>
-        <div class="card saldo">
-          <h3>Saldo Total</h3>
-          <p id="saldo-total">R$ 0,00</p>
-        </div>
-      </div>
-
-      <!-- Formulário de Cadastro -->
-      <form id="form-transacao">
         <div class="form-group">
-          <input
-            type="text"
-            id="descricao"
-            placeholder="Descrição (ex: Mercado,Salário)"
-            required
-          />
-        </div>
-        <div class="form-row">
-          <input
-            type="text"
-            id="valor"
-            placeholder="Valor (R$ 0,00)"
-            required
-          />
-          <input type="date" id="data" required />
+          <label for="edit-descricao">Descrição</label>
+          <input type="text" id="edit-descricao" placeholder="Descrição" required maxlength="120" />
         </div>
 
         <div class="form-row">
-          <select id="tipo" required>
+
+          <div class="form-group">
+            <label for="edit-valor">Valor</label>
+            <input type="text" id="edit-valor" placeholder="R$ 0,00" required />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-data">Data</label>
+            <input type="date" id="edit-data" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-tipo">Tipo</label>
+          <select id="edit-tipo" required>
             <option value="saida">Saída</option>
             <option value="entrada">Entrada</option>
           </select>
-
-          <select id="categoria" required>
-            <option value="Alimentação">Alimentação</option>
-            <option value="Moradia">Moradia</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Lazer">Lazer</option>
-            <option value="Saúde">Saúde</option>
-            <option value="Salário">Salário</option>
-            <option value="Outros">Outros</option>
-          </select>
-
-          <select id="conta" required>
-            <option value="Pix / Dinheiro">Pix / Dinheiro</option>
-            <option value="Cartão de Crédito">Cartão de Crédito</option>
-            <option value="Conta Corrente">Conta Corrente</option>
-            <option value="Carteira">Carteira</option>
-          </select>
         </div>
 
-        <button type="submit" class="btn-submit">Adicionar Transação</button>
-      </form>
+        <div class="form-row">
 
-      <!-- Seção do gráfico -->
-      <div class="grafico-container">
-        <h2>Gastos por Categoria</h2>
-        <canvas id="grafico-categorias"></canvas>
-      </div>
-      
-      <div class="historico-header">
-        <h2>Histórico do Mês</h2>
-        <div class="export-actions">
-          <button id="btn-export-csv" class="btn-export" type="button">📊 CSV</button>
-          <button id="btn-export-pdf" class="btn-export" type="button">📄 PDF</button>
-        </div>
-      </div>
-
-      <div id="loading" class="spinner-container" style="display: none;">
-        <div class="spinner"></div>
-      </div>
-      <ul id="lista-transacoes"></ul>
-    </div>
-
-    <!-- Modal de Confirmação de Exclusão -->
-    <div id="modal-confirm" class="modal-overlay">
-      <div class="modal-box">
-        <h3>Excluir Transação</h3>
-        <p>Tem certeza que deseja remover este item? Esta ação não pode ser desfeita.</p>
-        <div class="modal-actions">
-          <button id="btn-cancelar-modal" class="btn-secondary">Cancelar</button>
-          <button id="btn-confirmar-modal" class="btn-danger">Excluir</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de Edição -->
-     <div id="modal-edit" class="modal-overlay">
-      <div class="modal-box">
-        <h3>Editar Transação</h3>
-        <form id="form-editar-transacao">
-          <input type="hidden" id="edit-id" />
-          <div class="form-group" style="margin-bottom: 10px;">
-            <input type="text" id="edit-descricao" placeholder="Descrição" required />
-          </div>
-          <div class="form-row" style="margin-bottom: 10px;">
-            <input type="text" id="edit-valor" placeholder="Valor" required />
-            <input type="date" id="edit-data" required />
-          </div>
-          <div class="form-row" style="margin-bottom: 16px;">
-            <select id="edit-tipo" required>
-              <option value="saida">Saída</option>
-              <option value="entrada">Entrada</option>
-            </select>
+          <div class="form-group">
+            <label for="edit-categoria">Categoria</label>
             <select id="edit-categoria" required>
               <option value="Alimentação">Alimentação</option>
               <option value="Moradia">Moradia</option>
@@ -194,8 +389,10 @@
               <option value="Salário">Salário</option>
               <option value="Outros">Outros</option>
             </select>
+          </div>
 
-            <!-- Novo Campo: Conta (Edição) -->
+          <div class="form-group">
+            <label for="edit-conta">Conta</label>
             <select id="edit-conta" required>
               <option value="Pix / Dinheiro">Pix / Dinheiro</option>
               <option value="Cartão de Crédito">Cartão de Crédito</option>
@@ -203,18 +400,25 @@
               <option value="Carteira">Carteira</option>
             </select>
           </div>
-          <div class="modal-actions">
-            <button type="button" id="btn-cancelar-edit" class="btn-secondary">Cancelar</button>
-            <button type="submit" class="btn-submit" style="padding: 8px 16px;">Salvar</button>
-          </div>
-        </form>
-      </div>
-     </div>
+        </div>
 
-    <!-- Container de Toasts (Notificações) -->
-    <div id="toast-container"></div>
+        <div class="modal-actions">
+          <button type="button" id="btn-cancelar-edit" class="btn-secondary">
+            Cancelar
+          </button>
 
+          <button type="submit" class="btn-submit">
+            Salvar alterações
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-    <script src="./main.js"></script>
-  </body>
+  <!-- NOTIFICAÇÕES -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <script src="./main.js"></script>
+  
+</body>
 </html>
