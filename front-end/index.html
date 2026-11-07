@@ -136,6 +136,161 @@
             </select>
           </div>
         </div>
+        <div class="filter-footer">
+          <button id="btn-limpar-filtros" class="btn-secondary" type="button">Limpar filtros</button>
+        </div>
+      </section>
+
+      <!-- COMPARATIVO MENSAL -->
+      <section class="panel comparison-panel" id="comparativo-mensal">
+        <div class="section-heading finance-heading">
+          <div>
+            <span class="eyebrow">EVOLUÇÃO FINANCEIRA</span>
+            <h2>Comparativo mensal</h2>
+            <p class="panel-description">
+              Acompanhe como suas despesas evoluíram em relação ao mês anterior.
+            </p>
+          </div>
+        </div>
+
+        <div class="comparison-grid">
+          <article class="comparison-card">
+            <span class="comparison-label" id="comparativo-mes-atual-label">
+              Mês atual
+            </span>
+            <strong id="comparativo-mes-atual">R$ 0,00</strong>
+            <small class="comparison-caption">Total de despesas</small>
+          </article>
+
+          <article class="comparison-card">
+            <span class="comparison-label" id="comparativvo-mes-anterior-label">
+              Mês anterior
+            </span>
+            <strong id="comparativo-mes-anterior">R$ 0,00</strong>
+            <small class="comparison-caption">Total de despesas</small>
+          </article>
+
+          <article class="comparison card comparison-difference">
+            <span class="comparison-label">Variação</span>
+            <strong id="comparativo-variacao">0%</strong>
+            <small id="comparativo-mensagem">Selecione um período</small>
+          </article>
+        </div>
+
+        <div class="comparison-chart" aria-label="Comparativo de despesas">
+          <div class="comparison-chart-row">
+            <span id="grafico-mes-atual-label">Mês atual</span>
+            <div class="comparison-bar-track">
+              <div id="grafico-mes-atual-bar" class="comparison-bar current"></div>
+            </div>
+            <strong id="grafico-mes-atual-valor">R$ 0,00</strong>
+          </div>
+
+          <div class="comparison-chart-row">
+            <span id="grafico-mes-anterior-label">Mês anterior</span>
+            <div class="comparison-bar-track">
+              <div id="grafico-mes-anterior-bar" class="comparison-bar previous"></div>
+            </div>
+            <strong id="grafico-mes-anterior-valor">R$ 0,00</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORÇAMENTOS POR CATEGORIA -->
+      <section class="panel finance-tools-panel" id="orcamentos">
+        <div class="section-heading finance-heading">
+          <div>
+            <span class="eyebrow">PLANEJAMENTO</span>
+            <h2>Orçamento por categoria</h2>
+            <p class="panel-description">
+              Defina limites mensais e acompanhe quanto já foi utilizado.
+            </p>
+          </div>
+          <span class="finance-section-icon" aria-hidden="true">▤</span>
+        </div>
+
+        <form id="form-orcamento" class="finance-tool-form">
+          <label>
+            <span>Categoria</span>
+            <select id="orcamento-categoria" required>
+              <option value="">Selecione uma categoria</option>
+              <option>Alimentação</option>
+              <option>Moradia</option>
+              <option>Transporte</option>
+              <option>Lazer</option>
+              <option>Saúde</option>
+              <option>Educação</option>
+              <option>Outros</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Limite mensal (R$)</span>
+            <input id="orcamento-limite" type="number" min="0.01" step="0.01" placeholder="Ex.: 500,00" />
+          </label>
+
+          <button class="btn-primary finance-submit" type="submit">+ Salvar orçamento</button>
+        </form>
+
+        <div class="finance-list-heading">
+          <h3>Seus limites</h3>
+          <span id="orcamentos-contagem">0 orçamentos</span>
+        </div>
+
+        <div id="lista-orcamentos" class="finance-tool-list">
+          <div class="finance-empty-state">
+            <span class="empty-state-icon">▤</span>
+            <strong>Nenhum orçamento cadastrado</strong>
+            <p>Crie um limite para começar a acompanhar suas despesas.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- METAS FINANCEIRAS -->
+      <section class="panel finance-tools-panel" id="metas">
+        <div class="section-heading finance-heading">
+          <div>
+            <span class="eyebrow">OBJETIVOS</span>
+            <h2>Metas financeiras</h2>
+            <p class="panel-description">
+              Transforme seus objetivos em planos e acompanhe seu progresso.
+            </p>
+          </div>
+          <span class="finance-section-icon" aria-hidden="true">◎</span>
+        </div>
+
+        <form id="form-meta" class="finance-tool-form finance-goal-form">
+          <label>
+            <span>Nome da meta</span>
+            <input id="meta-nome" type="text" maxlength="100" required placeholder="Ex.: Viagem, reserva de emergência" />
+          </label>
+          <label>
+            <span>Valor desejado (R$)</span>
+            <input id="meta-alvo" type="number" min="0.01" step="0.01" required placeholder="Ex.: 5000,00" />
+          </label>
+          <label>
+            <span>Já economizei (R$)</span>
+            <input id="meta-atual" type="number" min="0" step="0.01" value="0" required />
+          </label>
+          <label>
+            <span>Prazo</span>
+            <input id="meta-prazo" type="date" />
+          </label>
+          <button class="btn-primary finance-submit" type="submit">+ Criar meta</button>
+        </form>
+        
+        <div class="finance-list-heading">
+          <h3>Seus objetivos</h3>
+          <span id="metas-contagem">0 metas</span>
+        </div>
+
+        <div id="lista-metas" class="finance-tool-list">
+          <div class="finance-empty-state">
+            <span class="empty-state-icon">◎</span>
+            <strong>Nenhuma meta cadastrada</strong>
+            <p>Adicione um objetivo para acompanhar quanto falta economizar.</p>
+          </div>
+        </div>
       </section>
 
       <!-- RESUMO FINANCEIRO -->
@@ -307,6 +462,13 @@
         </div>
 
         <ul id="lista-transacoes"></ul>
+        <div id="paginacao-historico" class="history-pagination" aria-label="paginação do histórico">
+          <span id="paginacao-info">Página 1</span>
+          <div>
+            <button id="btn-pagina-anterior" class="btn-secondary" type="button">Anterior</button>
+            <button id="btn-proxima-pagina" class="btn-secondary" type="button">Próxima</button>
+          </div>
+        </div>
       </section>
 
       <footer class="app-footer">
