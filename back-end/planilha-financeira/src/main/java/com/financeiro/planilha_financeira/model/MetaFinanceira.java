@@ -41,6 +41,10 @@ public class MetaFinanceira {
     @JoinColumn(name= "usuario_id", nullable= false)
     private Usuario usuario;
 
+    public String getNome() {
+        return nome;
+    }
+
    public void setNome(String nome) {
         this.nome = nome;
    }
