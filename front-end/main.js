@@ -8,7 +8,9 @@
 // 1. AUTENTICAÇÃO
 // ======================================================
 
-const API_URL = 'http://localhost:8080/api/transacoes';
+const API_BASE = 'https://financias-production-982f.up.railway.app';
+
+const API_URL = `${API_BASE}/api/transacoes`;
 
 function obterUsuarioLogado() {
   try {
@@ -788,8 +790,8 @@ function renderizarComparativoMensal() {
 // ORÇAMENTOS E METAS - API
 // ======================================================
 
-const ORCAMENTOS_URL = 'http://localhost:8080/api/orcamentos';
-const METAS_URL = 'http://localhost:8080/api/metas';
+const ORCAMENTOS_URL = `${API_BASE}/api/orcamentos`;
+const METAS_URL = `${API_BASE}/api/metas`;
 
 async function carregarPlanejamento() {
   try {

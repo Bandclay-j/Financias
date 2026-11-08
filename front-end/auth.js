@@ -1,4 +1,4 @@
-const API_AUTH = 'http://localhost:8080/api/usuarios';
+const API_AUTH = 'https://financias-production-982f.up.railway.app/api/usuarios';
 
 const formAuth = document.getElementById('form-auth');
 const campoNome = document.getElementById('campo-nome');
